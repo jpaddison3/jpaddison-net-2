@@ -24,6 +24,7 @@
     ]
   },
   "dependencies": {
+    "@material-ui/core": "4.12.3",
     "@prisma/client": "2.31.0-integration-undici-4.3",
     "autoprefixer": "10",
     "blitz": "0.39.0",
