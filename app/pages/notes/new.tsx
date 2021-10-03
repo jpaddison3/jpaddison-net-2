@@ -8,6 +8,8 @@ import {
   QueryClient,
   dehydrate,
   getQueryKey,
+  GetServerSideProps,
+  invokeWithMiddleware,
 } from "blitz"
 import Layout from "app/core/layouts/Layout"
 import createNote from "app/notes/mutations/createNote"
@@ -58,11 +60,13 @@ const NewNotePage: BlitzPage = () => {
   )
 }
 
-export const getStaticProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const queryClient = new QueryClient()
   const queryKey = getQueryKey(getCurrentUser)
 
-  await queryClient.prefetchQuery(queryKey, (ctx) => getCurrentUser(null, ctx))
+  await queryClient.prefetchQuery(queryKey, () =>
+    invokeWithMiddleware(getCurrentUser, null, context)
+  )
 
   return {
     props: {
