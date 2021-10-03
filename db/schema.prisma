@@ -20,10 +20,11 @@ model User {
   name           String?
   email          String   @unique
   hashedPassword String?
-  role           String   @default("USER")
+  role           RoleType @default(USER)
 
   tokens   Token[]
   sessions Session[]
+  notes    Note[]
 }
 
 model Session {
@@ -46,7 +47,6 @@ model Token {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   hashedToken String
-  // See note below about TokenType enum
   type        TokenType
   expiresAt   DateTime
   sentTo      String
@@ -61,9 +61,17 @@ enum TokenType {
   RESET_PASSWORD
 }
 
-model Todo {
+enum RoleType {
+  USER
+  ADMIN
+}
+
+model Note {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  name      String
+  title     String
+  contents  String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
 }

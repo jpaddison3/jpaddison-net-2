@@ -1,14 +1,14 @@
 import { Suspense } from "react"
 import { Head, Link, usePaginatedQuery, useRouter, BlitzPage, Routes } from "blitz"
 import Layout from "app/core/layouts/Layout"
-import getTodos from "app/todos/queries/getTodos"
+import getNotes from "app/notes/queries/getNotes"
 
 const ITEMS_PER_PAGE = 100
 
-export const TodosList = () => {
+export const NotesList = () => {
   const router = useRouter()
   const page = Number(router.query.page) || 0
-  const [{ todos, hasMore }] = usePaginatedQuery(getTodos, {
+  const [{ notes, hasMore }] = usePaginatedQuery(getNotes, {
     orderBy: { id: "asc" },
     skip: ITEMS_PER_PAGE * page,
     take: ITEMS_PER_PAGE,
@@ -20,10 +20,10 @@ export const TodosList = () => {
   return (
     <div>
       <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>
-            <Link href={Routes.ShowTodoPage({ todoId: todo.id })}>
-              <a>{todo.name}</a>
+        {notes.map((note) => (
+          <li key={note.id}>
+            <Link href={Routes.ShowNotePage({ noteId: note.id })}>
+              <a>{note.title}</a>
             </Link>
           </li>
         ))}
@@ -39,29 +39,29 @@ export const TodosList = () => {
   )
 }
 
-const TodosPage: BlitzPage = () => {
+const NotesPage: BlitzPage = () => {
   return (
     <>
       <Head>
-        <title>Todos</title>
+        <title>Notes</title>
       </Head>
 
       <div>
         <p>
-          <Link href={Routes.NewTodoPage()}>
-            <a>Create Todo</a>
+          <Link href={Routes.NewNotePage()}>
+            <a>Create Note</a>
           </Link>
         </p>
 
         <Suspense fallback={<div>Loading...</div>}>
-          <TodosList />
+          <NotesList />
         </Suspense>
       </div>
     </>
   )
 }
 
-TodosPage.authenticate = true
-TodosPage.getLayout = (page) => <Layout>{page}</Layout>
+NotesPage.authenticate = true
+NotesPage.getLayout = (page) => <Layout>{page}</Layout>
 
-export default TodosPage
+export default NotesPage

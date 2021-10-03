@@ -1,27 +1,27 @@
 import { paginate, resolver } from "blitz"
 import db, { Prisma } from "db"
 
-interface GetTodosInput
-  extends Pick<Prisma.TodoFindManyArgs, "where" | "orderBy" | "skip" | "take"> {}
+interface GetNotesInput
+  extends Pick<Prisma.NoteFindManyArgs, "where" | "orderBy" | "skip" | "take"> {}
 
 export default resolver.pipe(
   resolver.authorize(),
-  async ({ where, orderBy, skip = 0, take = 100 }: GetTodosInput) => {
+  async ({ where, orderBy, skip = 0, take = 100 }: GetNotesInput) => {
     // TODO: in multi-tenant app, you must add validation to ensure correct tenant
     const {
-      items: todos,
+      items: notes,
       hasMore,
       nextPage,
       count,
     } = await paginate({
       skip,
       take,
-      count: () => db.todo.count({ where }),
-      query: (paginateArgs) => db.todo.findMany({ ...paginateArgs, where, orderBy }),
+      count: () => db.note.count({ where }),
+      query: (paginateArgs) => db.note.findMany({ ...paginateArgs, where, orderBy }),
     })
 
     return {
-      todos,
+      notes,
       nextPage,
       hasMore,
       count,
