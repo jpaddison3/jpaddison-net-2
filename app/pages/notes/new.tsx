@@ -18,7 +18,7 @@ import { CreateNote } from "app/notes/validations"
 import { useCurrentUser } from "app/core/hooks/useCurrentUser"
 import React, { Suspense } from "react"
 import { CircularProgress } from "@material-ui/core"
-import getCurrentUser from "app/users/queries/getCurrentUser"
+import getCurrentUserQuery from "app/users/queries/getCurrentUser"
 
 const NewNotePage: BlitzPage = () => {
   const router = useRouter()
@@ -62,10 +62,10 @@ const NewNotePage: BlitzPage = () => {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const queryClient = new QueryClient()
-  const queryKey = getQueryKey(getCurrentUser)
+  const queryKey = getQueryKey(getCurrentUserQuery)
 
   await queryClient.prefetchQuery(queryKey, () =>
-    invokeWithMiddleware(getCurrentUser, null, context)
+    invokeWithMiddleware(getCurrentUserQuery, null, context)
   )
 
   return {

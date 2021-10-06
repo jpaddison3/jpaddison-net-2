@@ -84,14 +84,19 @@ model Integration {
   service   ServiceType
   user      User        @relation(fields: [userId], references: [id])
   userId    Int
-  secret    String
-  clientId  String
+  secret    String // JSON?
+  // webhook?
+  // refresh token??
 }
 
+// model OAuthIntegration {}
+
+// model WebhookIntegration {}
+
 enum ServiceType {
-  ZAPIER
-  // TODOIST
+  WEBHOOK
   // ASANA
+  // TODOIST
   // REMNOTE
   // ROAM
   // EVERNOTE

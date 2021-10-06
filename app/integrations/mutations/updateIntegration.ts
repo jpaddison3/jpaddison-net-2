@@ -1,11 +1,6 @@
 import { resolver } from "blitz"
 import db from "db"
-import { z } from "zod"
-
-const UpdateIntegration = z.object({
-  id: z.number(),
-  name: z.string(),
-})
+import { UpdateIntegration } from "../validations"
 
 export default resolver.pipe(
   resolver.zod(UpdateIntegration),

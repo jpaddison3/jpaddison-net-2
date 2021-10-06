@@ -1,17 +1,31 @@
-import { resolver, NotFoundError } from "blitz"
+import { canAccess } from "app/auth/permissions"
+import { getCurrentUser } from "app/users/helpers"
+import { resolver, NotFoundError, AuthenticationError } from "blitz"
 import db from "db"
-import { z } from "zod"
+import { GetIntegration } from "../validations"
 
-const GetIntegration = z.object({
-  // This accepts type of undefined, but is required at runtime
-  id: z.number().optional().refine(Boolean, "Required"),
-})
+export default resolver.pipe(
+  resolver.zod(GetIntegration),
+  resolver.authorize(),
+  async ({ id }, context) => {
+    let maybeUserRestriction: any = { userId: context.session.userId }
+    if (context.session.role === "ADMIN") {
+      maybeUserRestriction = {}
+    }
+    const integration = await db.integration.findFirst({
+      where: { id, ...maybeUserRestriction },
+      // Do not return secret
+      select: { id: true, service: true, userId: true },
+    })
+    const user = await getCurrentUser(context)
 
-export default resolver.pipe(resolver.zod(GetIntegration), resolver.authorize(), async ({ id }) => {
-  // TODO: in multi-tenant app, you must add validation to ensure correct tenant
-  const integration = await db.integration.findFirst({ where: { id } })
+    if (!integration) throw new NotFoundError()
+    if (!canAccess(user, integration)) throw new NotFoundError()
 
-  if (!integration) throw new NotFoundError()
-
-  return integration
-})
+    return {
+      id: integration.id,
+      // Do not return secret
+      service: integration.service,
+    }
+  }
+)
