@@ -10,6 +10,8 @@ export const Integration = () => {
   const [deleteIntegrationMutation] = useMutation(deleteIntegration)
   const [integration] = useQuery(getIntegration, { id: integrationId })
 
+  console.log("🚀 ~ file: [integrationId].tsx ~ line 12 ~ Integration ~ integration", integration)
+
   return (
     <>
       <Head>

@@ -94,7 +94,7 @@ model Integration {
 // model WebhookIntegration {}
 
 enum ServiceType {
-  WEBHOOK
+  ZAPIER // WEBHOOK?
   // ASANA
   // TODOIST
   // REMNOTE

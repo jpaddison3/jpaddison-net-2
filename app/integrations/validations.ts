@@ -3,9 +3,8 @@ import { z } from "zod"
 const Service = z.enum(["ZAPIER"])
 
 export const GetIntegration = z.object({
-  id: z.number(),
-  service: Service,
-  // clientId: z.string().optional(),
+  // We'll manually throw an error if no present :(
+  id: z.number().optional(),
 })
 
 export const CreateIntegration = z.object({
