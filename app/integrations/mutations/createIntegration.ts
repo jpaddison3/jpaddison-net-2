@@ -1,21 +1,24 @@
-import { AuthenticationError, resolver } from "blitz"
+import Guard from "app/guard/ability"
+import { getCurrentUser } from "app/users/helpers"
+import { resolver } from "blitz"
 import db from "db"
 import { CreateIntegration } from "../validations"
 
 export default resolver.pipe(
   resolver.zod(CreateIntegration),
   resolver.authorize(),
+  Guard.authorizePipe("create:own", "Integration"),
   async (input, context) => {
-    const user = await db.user.findFirst({ where: { id: context.session.userId } })
-    // Shouldn't be necessary given the auth check above, but just to make the
-    // type checker happy
-    if (!user) {
-      throw new AuthenticationError()
-    }
+    const user = await getCurrentUser(context)
     const integration = await db.integration.create({
       data: { ...input, user: { connect: { id: user.id } } },
     })
 
-    return integration
+    return {
+      id: integration.id,
+      name: integration.name,
+      service: integration.service,
+      userId: integration.userId,
+    }
   }
 )

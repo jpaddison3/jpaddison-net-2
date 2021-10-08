@@ -2,6 +2,7 @@ import { Link, useRouter, useMutation, BlitzPage, Routes } from "blitz"
 import Layout from "app/core/layouts/Layout"
 import createIntegration from "app/integrations/mutations/createIntegration"
 import { IntegrationForm, FORM_ERROR } from "app/integrations/components/IntegrationForm"
+import { CreateIntegration } from "app/integrations/validations"
 
 const NewIntegrationPage: BlitzPage = () => {
   const router = useRouter()
@@ -13,11 +14,8 @@ const NewIntegrationPage: BlitzPage = () => {
 
       <IntegrationForm
         submitText="Create Integration"
-        // TODO use a zod schema for form validation
-        //  - Tip: extract mutation's schema into a shared `validations.ts` file and
-        //         then import and use it here
-        // schema={CreateIntegration}
-        // initialValues={{}}
+        schema={CreateIntegration}
+        initialValues={{ service: "ZAPIER" }}
         onSubmit={async (values) => {
           try {
             const integration = await createIntegrationMutation(values)

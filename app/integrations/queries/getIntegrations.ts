@@ -1,7 +1,6 @@
 import { restrictQueryToOwnDocuments } from "app/guard/ability"
-import { Ctx, paginate, resolver } from "blitz"
-import db, { Integration, Prisma } from "db"
-import { z } from "zod"
+import { paginate, resolver } from "blitz"
+import db, { Prisma } from "db"
 import { GetIntegrations } from "../validations"
 
 interface GetIntegrationsInput
@@ -11,7 +10,7 @@ export default resolver.pipe(
   resolver.zod<typeof GetIntegrations, GetIntegrationsInput>(GetIntegrations),
   resolver.authorize<GetIntegrationsInput>(),
   restrictQueryToOwnDocuments<GetIntegrationsInput, Prisma.IntegrationWhereInput>(),
-  async ({ where, orderBy, skip = 0, take = 100 }: GetIntegrationsInput, ctx: Ctx) => {
+  async ({ where, orderBy, skip = 0, take = 100 }: GetIntegrationsInput) => {
     const {
       items: integrations,
       hasMore,
@@ -21,13 +20,12 @@ export default resolver.pipe(
       skip,
       take,
       count: () => db.integration.count({ where: { ...where } }),
-      // TODO; don't return secret
       query: (paginateArgs) =>
         db.integration.findMany({
           ...paginateArgs,
           where,
           orderBy,
-          select: { id: true, userId: true, service: true },
+          select: { id: true, userId: true, service: true, name: true },
         }),
     })
 

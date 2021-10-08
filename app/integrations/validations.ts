@@ -3,7 +3,7 @@ import { z } from "zod"
 const Service = z.enum(["ZAPIER"])
 
 export const GetIntegration = z.object({
-  // We'll manually throw an error if no present :(
+  // We'll manually throw an error if not present :(
   id: z.number().optional(),
 })
 
@@ -13,7 +13,8 @@ export const GetIntegrations = z.object({
 
 export const CreateIntegration = z.object({
   service: Service,
-  secret: z.string(),
+  webhook: z.string().url(),
+  name: z.string().optional(),
 })
 
 export const UpdateIntegration = CreateIntegration.extend({

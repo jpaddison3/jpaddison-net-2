@@ -11,5 +11,5 @@ import { resolver } from "blitz"
 //   res.end(JSON.stringify({ userId: session.userId }))
 // }
 
-// TODO; no idea if this works
+// TODO; no idea if this works (it doesn't)
 export default resolver.pipe(async (_, ctx) => await logout({}, ctx))

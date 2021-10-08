@@ -23,7 +23,6 @@ import getCurrentUserQuery from "app/users/queries/getCurrentUser"
 const NewNotePage: BlitzPage = () => {
   const router = useRouter()
   const [createNoteMutation] = useMutation(createNote)
-  // TODO; why doesn't this load immediately?
   const user = useCurrentUser()
   if (!user) {
     throw new AuthenticationError()

@@ -77,19 +77,29 @@ model Note {
   userId    Int
 }
 
+// TODO: add check constraint where servicetype tells you what secret is required
 model Integration {
   id        Int         @id @default(autoincrement())
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+  name      String?
   service   ServiceType
   user      User        @relation(fields: [userId], references: [id])
   userId    Int
-  secret    String // JSON?
-  // webhook?
-  // refresh token??
+  webhook   String // ?
+  // OAuthGrant OAuthGrant?
 }
 
-// model OAuthIntegration {}
+// model OAuthGrant {
+//   id            Int         @id @default(autoincrement())
+//   accessToken   String
+//   expiresIn     Int
+//   tokenType     String
+//   refreshToken  String
+//   data          Json
+//   Integration   Integration @relation(fields: [integrationId], references: [id])
+//   integrationId Int
+// }
 
 // model WebhookIntegration {}
 

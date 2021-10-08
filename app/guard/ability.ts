@@ -1,15 +1,26 @@
 import { Prisma } from "db"
 import { GuardBuilder } from "@blitz-guard/core"
 import { Ctx } from "@blitzjs/core"
-import { HasUserId } from "app/utils"
+import { HasUserId, MaybeHasUserId } from "app/utils"
 import { AuthenticatedMiddlewareCtx } from "@blitzjs/core/server"
 
 type ExtendedResourceTypes = Prisma.ModelName
 
-type ExtendedAbilityTypes = "manage:own" | "readMultiple:own"
+// Create own is separate, because it needs a separate guard
+type ExtendedAbilityTypes = "manage:own" | "create:own" | "readMultiple:own"
 
 function ownsDocument(ctx: Ctx) {
   return async (document: HasUserId) => {
+    return document.userId === ctx.session.userId
+  }
+}
+
+function forbidNonSelfUserId(ctx: Ctx) {
+  return async (document: MaybeHasUserId) => {
+    if (!document.userId) {
+      // Ok
+      return true
+    }
     return document.userId === ctx.session.userId
   }
 }
@@ -42,6 +53,7 @@ const Guard = GuardBuilder<ExtendedResourceTypes, ExtendedAbilityTypes>(
         can("manage", "all")
       }
       can("manage:own", "all", ownsDocument(ctx))
+      can("create:own", "all", forbidNonSelfUserId(ctx))
     }
   }
 )
