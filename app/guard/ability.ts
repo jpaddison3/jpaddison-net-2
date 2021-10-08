@@ -18,11 +18,15 @@ export function restrictQueryToOwnDocuments<
   T extends { where?: U },
   U extends { userId?: number | Prisma.IntFilter }
 >() {
-  return async ({ where, ...rest }: T, ctx: AuthenticatedMiddlewareCtx) => {
+  return async (
+    { where, ...rest }: T,
+    ctx: AuthenticatedMiddlewareCtx & { __securedByGuard: boolean }
+  ) => {
     let maybeUserId: { userId?: number } = { userId: ctx.session.userId }
     if (ctx.session.role === "ADMIN" && where?.userId) {
       maybeUserId = {}
     }
+    ctx.__securedByGuard = true
     return { where: { ...where, ...maybeUserId }, ...rest }
   }
 }

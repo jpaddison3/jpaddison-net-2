@@ -7,10 +7,6 @@ import { GetIntegrations } from "../validations"
 interface GetIntegrationsInput
   extends Pick<Prisma.IntegrationFindManyArgs, "where" | "orderBy" | "skip" | "take"> {}
 
-interface GetIntegrationsResponse {
-  integrations: Pick<Integration, "id" | "service">
-}
-
 export default resolver.pipe(
   resolver.zod<typeof GetIntegrations, GetIntegrationsInput>(GetIntegrations),
   resolver.authorize<GetIntegrationsInput>(),
@@ -26,7 +22,13 @@ export default resolver.pipe(
       take,
       count: () => db.integration.count({ where: { ...where } }),
       // TODO; don't return secret
-      query: (paginateArgs) => db.integration.findMany({ ...paginateArgs, where, orderBy }),
+      query: (paginateArgs) =>
+        db.integration.findMany({
+          ...paginateArgs,
+          where,
+          orderBy,
+          select: { id: true, userId: true, service: true },
+        }),
     })
 
     return {

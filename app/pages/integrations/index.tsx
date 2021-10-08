@@ -23,7 +23,7 @@ export const IntegrationsList = () => {
         {integrations.map((integration) => (
           <li key={integration.id}>
             <Link href={Routes.ShowIntegrationPage({ integrationId: integration.id })}>
-              <a>{integration.name}</a>
+              <a>{integration.service}</a>
             </Link>
           </li>
         ))}
