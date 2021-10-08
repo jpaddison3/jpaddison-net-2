@@ -7,37 +7,24 @@ type ExtendedResourceTypes = Prisma.ModelName
 
 type ExtendedAbilityTypes = "manage:own"
 
+function ownsDocument(ctx: Ctx) {
+  return async (document: HasUserId) => {
+    return document.userId === ctx.session.userId
+  }
+}
+
+// You can read and write documents with your userId, and only those documents
 const Guard = GuardBuilder<ExtendedResourceTypes, ExtendedAbilityTypes>(
   async (ctx, { can, cannot }) => {
+    console.log("outermost")
     cannot("manage", "all")
-    if (ctx.session.role === "ADMIN") {
-      can("manage", "all")
-      // return // ?
+    if (ctx.session.$isAuthorized()) {
+      console.log("isAuthorized")
+      if (ctx.session.role === "ADMIN") {
+        can("manage", "all")
+      }
+      can("manage:own", "all", ownsDocument(ctx))
     }
-    can("manage:own", "all", async ({ document }: { document: HasUserId }) => {
-      return document.userId === ctx.session.userId
-    })
-    /*
-		Your rules go here, you can start by removing access to everything
-		and gradually adding the necessary permissions
-
-		eg:
-		cannot("manage", "comment")
-		cannot("manage", "article")
-
-		can("read", "article")
-		can("read", "comment")
-
-		if (ctx.session.isAuthorized()) {
-			can("create", "article")
-			can("create", "comment")
-			can("send email", "comment")
-
-			can("delete", "comment", async (_args) => {
-				return (await db.comment.count({ where: { userId: ctx.session.userId } })) === 1
-			})
-		}
-    */
   }
 )
 
