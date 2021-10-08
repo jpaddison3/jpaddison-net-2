@@ -1,7 +1,5 @@
-import { canAccess } from "app/auth/permissions"
 import Guard from "app/guard/ability"
-import { getCurrentUser } from "app/users/helpers"
-import { resolver, NotFoundError, AuthenticationError } from "blitz"
+import { resolver, NotFoundError } from "blitz"
 import db from "db"
 import { GetIntegration } from "../validations"
 
@@ -20,12 +18,10 @@ export default resolver.pipe(
     }
 
     return {
-      integration: {
-        id: integration.id,
-        // Do not return secret
-        service: integration.service,
-      },
-      documentUserId: integration.userId,
+      id: integration.id,
+      // Do not return secret
+      service: integration.service,
+      userId: integration.userId,
     }
   },
   Guard.authorizePipe("manage:own", "Integration")

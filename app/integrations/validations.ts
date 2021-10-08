@@ -7,6 +7,10 @@ export const GetIntegration = z.object({
   id: z.number().optional(),
 })
 
+export const GetIntegrations = z.object({
+  userId: z.number().optional(),
+})
+
 export const CreateIntegration = z.object({
   service: Service,
   secret: z.string(),
