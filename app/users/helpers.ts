@@ -1,5 +1,14 @@
-import { AuthenticatedMiddlewareCtx, Ctx } from "blitz"
+import {
+  AuthenticatedMiddlewareCtx,
+  Ctx,
+  dehydrate,
+  getQueryKey,
+  GetServerSidePropsContext,
+  invokeWithMiddleware,
+  QueryClient,
+} from "blitz"
 import db, { User } from "db"
+import getCurrentUserQuery from "./queries/getCurrentUser"
 
 export async function getCurrentUser({ session }: AuthenticatedMiddlewareCtx): Promise<User>
 export async function getCurrentUser({ session }: Ctx): Promise<User | null>
@@ -18,4 +27,15 @@ export type CurrentUser = {
   name: string | null
   email: string
   role: string
+}
+
+export async function getCurrentUserServerSideDehydratedState(context: GetServerSidePropsContext) {
+  const queryClient = new QueryClient()
+  const queryKey = getQueryKey(getCurrentUserQuery)
+
+  await queryClient.prefetchQuery(queryKey, () =>
+    invokeWithMiddleware(getCurrentUserQuery, null, context)
+  )
+
+  return dehydrate(queryClient)
 }
