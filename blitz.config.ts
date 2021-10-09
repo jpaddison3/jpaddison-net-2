@@ -12,6 +12,7 @@ const config: BlitzConfig = {
         "/api/auth/mutations/login",
         "/api/auth/mutations/logout",
         "/api/guard/queries/getAbility",
+        "/api/users/queries/getCurrentUser",
       ],
     }),
   ],

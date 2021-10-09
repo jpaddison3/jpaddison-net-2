@@ -1,30 +1,17 @@
-import {
-  Link,
-  useRouter,
-  useMutation,
-  BlitzPage,
-  Routes,
-  AuthenticationError,
-  QueryClient,
-  dehydrate,
-  getQueryKey,
-  GetServerSideProps,
-  invokeWithMiddleware,
-} from "blitz"
+import { Link, useRouter, useMutation, BlitzPage, Routes, AuthenticationError } from "blitz"
 import Layout from "app/core/layouts/Layout"
 import createNote from "app/notes/mutations/createNote"
 import { NoteForm, FORM_ERROR } from "app/notes/components/NoteForm"
 import { CreateNote } from "app/notes/validations"
-import { useCurrentUser } from "app/core/hooks/useCurrentUser"
 import React, { Suspense } from "react"
 import { CircularProgress } from "@material-ui/core"
-import getCurrentUserQuery from "app/users/queries/getCurrentUser"
+import { useCurrentUserContext } from "app/users/CurrentUserProvider"
 
 const NewNotePage: BlitzPage = () => {
   const router = useRouter()
   const [createNoteMutation] = useMutation(createNote)
-  const user = useCurrentUser()
-  if (!user) {
+  const { currentUser } = useCurrentUserContext()
+  if (!currentUser) {
     throw new AuthenticationError()
   }
 
@@ -37,7 +24,10 @@ const NewNotePage: BlitzPage = () => {
         schema={CreateNote}
         onSubmit={async (noteUserInput) => {
           const validatedNote = CreateNote.parse(noteUserInput)
-          const validatedNoteWithUser = { ...validatedNote, user: { connect: { id: user.id } } }
+          const validatedNoteWithUser = {
+            ...validatedNote,
+            user: { connect: { id: currentUser.id } },
+          }
           try {
             const note = await createNoteMutation(validatedNoteWithUser)
             router.push(Routes.ShowNotePage({ noteId: note.id }))
@@ -57,21 +47,6 @@ const NewNotePage: BlitzPage = () => {
       </p>
     </div>
   )
-}
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const queryClient = new QueryClient()
-  const queryKey = getQueryKey(getCurrentUserQuery)
-
-  await queryClient.prefetchQuery(queryKey, () =>
-    invokeWithMiddleware(getCurrentUserQuery, null, context)
-  )
-
-  return {
-    props: {
-      dehydratedState: dehydrate(queryClient),
-    },
-  }
 }
 
 NewNotePage.authenticate = true

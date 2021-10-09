@@ -1,15 +1,23 @@
 import { BlitzApiRequest, BlitzApiResponse } from "@blitzjs/core"
 import { getSession } from "@blitzjs/core/server"
-import logout from "app/auth/mutations/logout"
-import { resolver } from "blitz"
 
-// export default async function customRoute(req: BlitzApiRequest, res: BlitzApiResponse) {
-//   const logoutMutation =
+export default async function customRoute(req: BlitzApiRequest, res: BlitzApiResponse) {
+  try {
+    const session = await getSession(req, res)
+    if (!session.$isAuthorized()) {
+      res.statusCode = 302
+      res.setHeader("Location", "/")
+      res.end()
+      return
+    }
 
-//   res.statusCode = 200
-//   res.setHeader("Content-Type", "application/json")
-//   res.end(JSON.stringify({ userId: session.userId }))
-// }
-
-// TODO; no idea if this works (it doesn't)
-export default resolver.pipe(async (_, ctx) => await logout({}, ctx))
+    session.$revoke()
+    res.statusCode = 302
+    res.setHeader("Location", "/")
+    res.end()
+  } catch (error) {
+    console.log(error)
+    res.statusCode = 500
+    res.end()
+  }
+}

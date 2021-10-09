@@ -8,6 +8,7 @@ import SwipeableDrawer, { SwipeableDrawerProps } from "@material-ui/core/Swipeab
 import { makeStyles, Theme } from "@material-ui/core"
 import { routes } from "app/core/routes"
 import Link from "app/core/components/WrappedLink"
+import { useCurrentUserContext } from "app/users/CurrentUserProvider"
 
 const useStyles = makeStyles<Theme>((theme) => ({
   drawerRoot: {
@@ -23,15 +24,15 @@ const useStyles = makeStyles<Theme>((theme) => ({
 
 const NavDrawer = ({ open, onClose, onOpen }: SwipeableDrawerProps) => {
   const classes = useStyles()
-  // const { user } = useUser()
+  const user = useCurrentUserContext()
   const routesMaybeWithLogout = routes
-  // if (user) {
-  //   routesMaybeWithLogout.push({
-  //     id: 'logout',
-  //     href: '/api/auth/logout',
-  //     label: 'Logout'
-  //   })
-  // }
+  if (user) {
+    routesMaybeWithLogout.push({
+      id: "logout",
+      href: "/api/logout",
+      label: "Logout",
+    })
+  }
 
   return (
     <SwipeableDrawer open={open} onClose={onClose} onOpen={onOpen}>

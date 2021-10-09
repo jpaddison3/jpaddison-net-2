@@ -6,16 +6,26 @@ import {
   AuthorizationError,
   ErrorFallbackProps,
   useQueryErrorResetBoundary,
+  GetServerSideProps,
+  QueryClient,
+  invokeWithMiddleware,
+  getQueryKey,
+  dehydrate,
 } from "blitz"
 import LoginForm from "app/auth/components/LoginForm"
 
 import CssBaseline from "@material-ui/core/CssBaseline"
 import { ThemeProvider } from "@material-ui/core/styles"
-import React from "react"
+import React, { Suspense } from "react"
 import { theme } from "app/core/styles/theme"
+import { CurrentUserProvider } from "app/users/CurrentUserProvider"
+import getCurrentUserQuery from "app/users/queries/getCurrentUser"
+import { useCurrentUserQuery } from "app/core/hooks/useCurrentUserQuery"
+import { CircularProgress } from "@material-ui/core"
 
-export default function App({ Component, pageProps }: AppProps) {
+function InnerApp({ Component, pageProps }: AppProps) {
   const getLayout = Component.getLayout || ((page) => page)
+  const currentUser = useCurrentUserQuery()
 
   return (
     <ThemeProvider theme={theme}>
@@ -24,9 +34,35 @@ export default function App({ Component, pageProps }: AppProps) {
         FallbackComponent={RootErrorFallback}
         onReset={useQueryErrorResetBoundary().reset}
       >
-        {getLayout(<Component {...pageProps} />)}
+        <CurrentUserProvider currentUser={currentUser}>
+          {getLayout(<Component {...pageProps} />)}
+        </CurrentUserProvider>
       </ErrorBoundary>
     </ThemeProvider>
+  )
+}
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  console.log("getting props serverside ======= ")
+  const queryClient = new QueryClient()
+  const queryKey = getQueryKey(getCurrentUserQuery)
+
+  await queryClient.prefetchQuery(queryKey, () =>
+    invokeWithMiddleware(getCurrentUserQuery, null, context)
+  )
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  }
+}
+
+export default function OuterApp(props: AppProps) {
+  return (
+    <Suspense fallback={<CircularProgress />}>
+      <InnerApp {...props} />
+    </Suspense>
   )
 }
 

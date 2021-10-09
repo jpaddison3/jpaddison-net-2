@@ -12,3 +12,10 @@ export async function getCurrentUser({ session }: Ctx): Promise<User | null> {
 
   return user
 }
+
+export type CurrentUser = {
+  id: number
+  name: string | null
+  email: string
+  role: string
+}
