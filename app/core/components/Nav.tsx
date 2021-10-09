@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { Suspense, useState } from "react"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
@@ -8,7 +8,9 @@ import SwipeableDrawer, { SwipeableDrawerProps } from "@material-ui/core/Swipeab
 import { makeStyles, Theme } from "@material-ui/core"
 import { routes } from "app/core/routes"
 import Link from "app/core/components/WrappedLink"
-// import { useCurrentUserContext } from "app/users/CurrentUserProvider"
+import getCurrentUserQuery from "app/users/queries/getCurrentUser"
+import { invoke, useQuery } from "blitz"
+import JpSuspense from "./JpSuspense"
 
 const useStyles = makeStyles<Theme>((theme) => ({
   drawerRoot: {
@@ -22,31 +24,43 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
 }))
 
-const NavDrawer = ({ open, onClose, onOpen }: SwipeableDrawerProps) => {
+function NavDrawerContents() {
   const classes = useStyles()
-  // const user = useCurrentUserContext()
-  const routesMaybeWithLogout = routes
-  // if (user) {
-  //   routesMaybeWithLogout.push({
-  //     id: "logout",
-  //     href: "/api/logout",
-  //     label: "Logout",
-  //   })
-  // }
+  const [user, { status }] = useQuery(getCurrentUserQuery, null)
+  console.log("🚀 ~ file: Nav.tsx ~ line 29 ~ NavDrawer ~ status", status)
+  const routesMaybeWithLogout = [...routes]
+  if (user) {
+    routesMaybeWithLogout.push({
+      id: "logout",
+      href: "/api/logout",
+      label: "Logout",
+    })
+  }
+
+  return (
+    <List className={classes.drawerRoot}>
+      {routesMaybeWithLogout.map(({ id, href, label }) => (
+        <ListItem key={id}>
+          <ListItemText primaryTypographyProps={{ variant: "body2" }}>
+            <Link className={classes.navItem} href={href}>
+              {label}
+            </Link>
+          </ListItemText>
+        </ListItem>
+      ))}
+    </List>
+  )
+}
+
+function NavDrawer({ open, onClose, onOpen }: SwipeableDrawerProps) {
+  // Pre-fetch getcurrentuser
+  invoke(getCurrentUserQuery, null)
 
   return (
     <SwipeableDrawer open={open} onClose={onClose} onOpen={onOpen}>
-      <List className={classes.drawerRoot}>
-        {routesMaybeWithLogout.map(({ id, href, label }) => (
-          <ListItem key={id}>
-            <ListItemText primaryTypographyProps={{ variant: "body2" }}>
-              <Link className={classes.navItem} href={href}>
-                {label}
-              </Link>
-            </ListItemText>
-          </ListItem>
-        ))}
-      </List>
+      <JpSuspense name="NavDrawer">
+        <NavDrawerContents />
+      </JpSuspense>
     </SwipeableDrawer>
   )
 }

@@ -6,10 +6,6 @@ import {
   Routes,
   AuthenticationError,
   GetServerSideProps,
-  QueryClient,
-  getQueryKey,
-  invokeWithMiddleware,
-  dehydrate,
   useQuery,
 } from "blitz"
 import Layout from "app/core/layouts/Layout"
@@ -17,9 +13,9 @@ import createNote from "app/notes/mutations/createNote"
 import { NoteForm, FORM_ERROR } from "app/notes/components/NoteForm"
 import { CreateNote } from "app/notes/validations"
 import React, { Suspense } from "react"
-import { CircularProgress } from "@material-ui/core"
 import getCurrentUserQuery from "app/users/queries/getCurrentUser"
 import { getCurrentUserServerSideDehydratedState } from "app/users/helpers"
+import LoadingWhileSuspended from "app/core/components/LoadingWhileSuspended"
 
 const NewNotePage: BlitzPage = () => {
   const router = useRouter()
@@ -64,22 +60,6 @@ const NewNotePage: BlitzPage = () => {
   )
 }
 
-// export const getServerSideProps: GetServerSideProps = async (context) => {
-//   console.log('getting props serverside ======= ')
-//   const queryClient = new QueryClient()
-//   const queryKey = getQueryKey(getCurrentUserQuery)
-
-//   await queryClient.prefetchQuery(queryKey, () =>
-//     invokeWithMiddleware(getCurrentUserQuery, null, context)
-//   )
-
-//   return {
-//     props: {
-//       dehydratedState: dehydrate(queryClient),
-//     },
-//   }
-// }
-
 export const getServerSideProps: GetServerSideProps = async (context) => {
   return {
     props: {
@@ -91,8 +71,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 NewNotePage.authenticate = true
 NewNotePage.getLayout = (page) => (
   <Layout title={"Create New Note"}>
-    <Suspense fallback={<CircularProgress />}>{page}</Suspense>
+    <Suspense fallback={<LoadingWhileSuspended name="NewNotePage" />}>{page}</Suspense>
   </Layout>
 )
+NewNotePage.suppressFirstRenderFlicker = true
 
 export default NewNotePage
