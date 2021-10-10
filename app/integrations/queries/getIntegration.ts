@@ -10,7 +10,7 @@ export default resolver.pipe(
     const integration = await db.integration.findFirst({
       where: { id },
       // Do not return secret
-      select: { id: true, service: true, userId: true },
+      select: { id: true, service: true, userId: true, name: true },
     })
 
     if (!integration) {
@@ -22,6 +22,7 @@ export default resolver.pipe(
       // Do not return secret
       service: integration.service,
       userId: integration.userId,
+      name: integration.name,
     }
   },
   Guard.authorizePipe("read:own", "Integration")

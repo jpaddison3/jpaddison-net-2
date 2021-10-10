@@ -16,6 +16,10 @@ export default resolver.pipe(
 
     const updatedIntegration = await db.integration.update({ where: { id }, data })
 
-    return updatedIntegration
+    return {
+      id: updatedIntegration.id,
+      name: updatedIntegration.name,
+      service: updatedIntegration.service,
+    }
   }
 )
