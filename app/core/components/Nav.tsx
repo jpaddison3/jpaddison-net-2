@@ -39,14 +39,25 @@ function NavDrawerContents() {
 
   return (
     <List className={classes.drawerRoot}>
-      {routesMaybeWithLogout.map(({ id, href, label }) => (
-        <ListItem key={id}>
-          <ListItemText primaryTypographyProps={{ variant: "body2" }}>
-            <Link className={classes.navItem} href={href}>
-              {label}
-            </Link>
-          </ListItemText>
-        </ListItem>
+      {routesMaybeWithLogout.map(({ id, href, label, subRoutes }) => (
+        <>
+          <ListItem key={id}>
+            <ListItemText primaryTypographyProps={{ variant: "body2" }}>
+              <Link className={classes.navItem} href={href}>
+                {label}
+              </Link>
+            </ListItemText>
+          </ListItem>
+          {subRoutes?.map(({ id, href, label }) => (
+            <ListItem key={id}>
+              <ListItemText primaryTypographyProps={{ variant: "body2" }}>
+                <Link className={classes.navItem} href={href}>
+                  ↪ {label}
+                </Link>
+              </ListItemText>
+            </ListItem>
+          ))}
+        </>
       ))}
     </List>
   )
