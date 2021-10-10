@@ -1,17 +1,60 @@
-import { Form, FormProps } from "app/core/components/Form"
-import { LabeledTextField } from "app/core/components/LabeledTextField"
-import { ReactElement } from "react"
-import { z } from "zod"
-import { CreateNote, UpdateNote } from "../validations"
-export { FORM_ERROR } from "app/core/components/Form"
+import { validateZodSchema } from "@blitzjs/core"
+import { Form as FinalForm } from "react-final-form"
+import { TextField } from "mui-rff"
+import React from "react"
+import { TakeNote } from "../validations"
+import Button from "@material-ui/core/Button"
+import { makeStyles } from "@material-ui/styles"
 
-export function NoteForm(props: FormProps<typeof CreateNote>): ReactElement
-export function NoteForm(props: FormProps<typeof UpdateNote>): ReactElement
-export function NoteForm<T extends z.ZodType<any, any>>(props: FormProps<T>) {
+export const useStyles = makeStyles((theme) => ({
+  button: {
+    marginTop: 32,
+  },
+  nonTopTextField: {
+    marginTop: 16,
+  },
+}))
+
+export function NoteForm() {
+  const integrations = [{ name: "Zapier", id: 2 }]
+  const classes = useStyles()
+
   return (
-    <Form {...props}>
-      <LabeledTextField name="title" label="Title" placeholder="Title" />
-      <LabeledTextField name="contents" label="Contents" placeholder="Contents" />
-    </Form>
+    <FinalForm
+      validate={validateZodSchema(TakeNote)}
+      submitText="Take Note"
+      onSubmit={(values) => console.log(values)}
+      render={({ handleSubmit, submitting, form, submitError }) => (
+        <form onSubmit={handleSubmit}>
+          {submitError && (
+            <div role="alert" style={{ color: "red" }}>
+              {submitError}
+            </div>
+          )}
+
+          <TextField name="title" label="Title" />
+          <TextField
+            name="contents"
+            label="Contents"
+            multiline
+            minRows={3}
+            className={classes.nonTopTextField}
+          />
+          {integrations.map((integration) => (
+            <Button
+              key={integration.id}
+              type="submit"
+              disabled={submitting}
+              onClick={() => form.change("integrationId", integration.id)}
+              variant="contained"
+              color="primary"
+              className={classes.button}
+            >
+              {integration.name}
+            </Button>
+          ))}
+        </form>
+      )}
+    />
   )
 }

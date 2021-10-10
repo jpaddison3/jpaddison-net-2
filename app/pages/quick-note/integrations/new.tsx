@@ -3,6 +3,8 @@ import Layout from "app/core/layouts/Layout"
 import createIntegration from "app/integrations/mutations/createIntegration"
 import { IntegrationForm, FORM_ERROR } from "app/integrations/components/IntegrationForm"
 import { CreateIntegration } from "app/integrations/validations"
+import React from "react"
+import Typography from "@material-ui/core/Typography"
 
 const NewIntegrationPage: BlitzPage = () => {
   const router = useRouter()
@@ -10,7 +12,9 @@ const NewIntegrationPage: BlitzPage = () => {
 
   return (
     <div>
-      <h1>Create New Integration</h1>
+      <Typography variant="h2" component="h1" color="primary">
+        Create New Integration
+      </Typography>
 
       <IntegrationForm
         submitText="Create Integration"

@@ -1,8 +1,19 @@
-import { ReactNode, PropsWithoutRef } from "react"
+import React, { ReactNode, PropsWithoutRef } from "react"
 import { Form as FinalForm, FormProps as FinalFormProps } from "react-final-form"
 import { z } from "zod"
 import { validateZodSchema } from "blitz"
+import Button from "@material-ui/core/Button"
+import { makeStyles } from "@material-ui/styles"
 export { FORM_ERROR } from "final-form"
+
+export const useStyles = makeStyles((theme) => ({
+  button: {
+    marginTop: 16,
+  },
+  textField: {
+    marginTop: 16,
+  },
+}))
 
 export interface FormProps<S extends z.ZodType<any, any>>
   extends Omit<PropsWithoutRef<JSX.IntrinsicElements["form"]>, "onSubmit"> {
@@ -23,6 +34,8 @@ export function Form<S extends z.ZodType<any, any>>({
   onSubmit,
   ...props
 }: FormProps<S>) {
+  const classes = useStyles()
+
   return (
     <FinalForm
       initialValues={initialValues}
@@ -30,7 +43,6 @@ export function Form<S extends z.ZodType<any, any>>({
       onSubmit={onSubmit}
       render={({ handleSubmit, submitting, submitError }) => (
         <form onSubmit={handleSubmit} className="form" {...props}>
-          {/* Form fields supplied as children are rendered here */}
           {children}
 
           {submitError && (
@@ -40,16 +52,16 @@ export function Form<S extends z.ZodType<any, any>>({
           )}
 
           {submitText && (
-            <button type="submit" disabled={submitting}>
+            <Button
+              type="submit"
+              disabled={submitting}
+              variant="contained"
+              color="primary"
+              className={classes.button}
+            >
               {submitText}
-            </button>
+            </Button>
           )}
-
-          <style global jsx>{`
-            .form > * + * {
-              margin-top: 1rem;
-            }
-          `}</style>
         </form>
       )}
     />
