@@ -22,7 +22,7 @@ export default resolver.pipe(
       // Do not return secret
       service: integration.service,
       userId: integration.userId,
-      name: integration.name,
+      name: integration.name || undefined,
     }
   },
   Guard.authorizePipe("read:own", "Integration")

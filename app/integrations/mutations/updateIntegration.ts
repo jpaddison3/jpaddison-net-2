@@ -18,8 +18,9 @@ export default resolver.pipe(
 
     return {
       id: updatedIntegration.id,
-      name: updatedIntegration.name,
+      name: updatedIntegration.name || undefined,
       service: updatedIntegration.service,
+      userId: updatedIntegration.userId,
     }
   }
 )
