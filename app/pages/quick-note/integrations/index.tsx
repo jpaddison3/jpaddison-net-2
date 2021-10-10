@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import { Head, Link, usePaginatedQuery, useRouter, BlitzPage, Routes } from "blitz"
 import Layout from "app/core/layouts/Layout"
 import getIntegrations from "app/integrations/queries/getIntegrations"
-import { CircularProgress } from "@material-ui/core"
+import JpSuspense from "app/core/components/JpSuspense"
 
 const ITEMS_PER_PAGE = 100
 
@@ -54,9 +54,9 @@ const IntegrationsPage: BlitzPage = () => {
           </Link>
         </p>
 
-        <Suspense fallback={<CircularProgress />}>
+        <JpSuspense name="IntegrationsList">
           <IntegrationsList />
-        </Suspense>
+        </JpSuspense>
       </div>
     </>
   )

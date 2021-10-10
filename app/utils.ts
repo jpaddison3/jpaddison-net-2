@@ -5,3 +5,5 @@ export interface HasUserId {
 export interface MaybeHasUserId {
   userId?: number
 }
+
+export const isServer = typeof window === "undefined"

@@ -11,6 +11,7 @@ import Link from "app/core/components/WrappedLink"
 import getCurrentUserQuery from "app/users/queries/getCurrentUser"
 import { invoke, useQuery } from "blitz"
 import JpSuspense from "./JpSuspense"
+import { isServer } from "app/utils"
 
 const useStyles = makeStyles<Theme>((theme) => ({
   drawerRoot: {
@@ -65,7 +66,11 @@ function NavDrawerContents() {
 
 function NavDrawer({ open, onClose, onOpen }: SwipeableDrawerProps) {
   // Pre-fetch getcurrentuser
-  invoke(getCurrentUserQuery, null)
+  // Test for not being on the server, as invoke on the server doesn't give
+  // context to the query
+  if (!isServer) {
+    invoke(getCurrentUserQuery, null)
+  }
 
   return (
     <SwipeableDrawer open={open} onClose={onClose} onOpen={onOpen}>
