@@ -25,12 +25,14 @@
     ]
   },
   "dependencies": {
+    "@blitz-guard/core": "0.4.1",
     "@material-ui/core": "4.12.3",
     "@material-ui/icons": "4.11.2",
     "@prisma/client": "2.31.0-integration-undici-4.3",
     "autoprefixer": "10",
     "blitz": "0.39.0",
     "final-form": "4.20.2",
+    "mui-rff": "3.0.16",
     "react": "alpha",
     "react-dom": "alpha",
     "react-final-form": "6.5.3",
@@ -47,7 +49,7 @@
     "pretty-quick": "3.1.1",
     "preview-email": "3.0.5",
     "prisma": "2.31.0-integration-undici-4.3",
-    "typescript": "~4.3"
+    "typescript": "~4.4"
   },
   "private": true
 }

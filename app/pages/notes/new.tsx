@@ -5,28 +5,25 @@ import {
   BlitzPage,
   Routes,
   AuthenticationError,
-  QueryClient,
-  dehydrate,
-  getQueryKey,
   GetServerSideProps,
-  invokeWithMiddleware,
+  useQuery,
 } from "blitz"
 import Layout from "app/core/layouts/Layout"
 import createNote from "app/notes/mutations/createNote"
 import { NoteForm, FORM_ERROR } from "app/notes/components/NoteForm"
 import { CreateNote } from "app/notes/validations"
-import { useCurrentUser } from "app/core/hooks/useCurrentUser"
 import React, { Suspense } from "react"
-import { CircularProgress } from "@material-ui/core"
-import getCurrentUser from "app/users/queries/getCurrentUser"
+import getCurrentUserQuery from "app/users/queries/getCurrentUser"
+import { getCurrentUserServerSideDehydratedState } from "app/users/helpers"
+import LoadingWhileSuspended from "app/core/components/LoadingWhileSuspended"
 
 const NewNotePage: BlitzPage = () => {
   const router = useRouter()
   const [createNoteMutation] = useMutation(createNote)
-  // TODO; why doesn't this load immediately?
-  const user = useCurrentUser()
-  if (!user) {
-    throw new AuthenticationError()
+  const [currentUser, { status }] = useQuery(getCurrentUserQuery, null)
+  console.log("🚀 ~ file: new.tsx ~ line 15 ~ status", status)
+  if (!currentUser) {
+    throw new AuthenticationError("Not authenticated")
   }
 
   return (
@@ -38,7 +35,10 @@ const NewNotePage: BlitzPage = () => {
         schema={CreateNote}
         onSubmit={async (noteUserInput) => {
           const validatedNote = CreateNote.parse(noteUserInput)
-          const validatedNoteWithUser = { ...validatedNote, user: { connect: { id: user.id } } }
+          const validatedNoteWithUser = {
+            ...validatedNote,
+            user: { connect: { id: currentUser.id } },
+          }
           try {
             const note = await createNoteMutation(validatedNoteWithUser)
             router.push(Routes.ShowNotePage({ noteId: note.id }))
@@ -61,16 +61,9 @@ const NewNotePage: BlitzPage = () => {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const queryClient = new QueryClient()
-  const queryKey = getQueryKey(getCurrentUser)
-
-  await queryClient.prefetchQuery(queryKey, () =>
-    invokeWithMiddleware(getCurrentUser, null, context)
-  )
-
   return {
     props: {
-      dehydratedState: dehydrate(queryClient),
+      dehydratedState: await getCurrentUserServerSideDehydratedState(context),
     },
   }
 }
@@ -78,8 +71,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 NewNotePage.authenticate = true
 NewNotePage.getLayout = (page) => (
   <Layout title={"Create New Note"}>
-    <Suspense fallback={<CircularProgress />}>{page}</Suspense>
+    <Suspense fallback={<LoadingWhileSuspended name="NewNotePage" />}>{page}</Suspense>
   </Layout>
 )
+NewNotePage.suppressFirstRenderFlicker = true
 
 export default NewNotePage

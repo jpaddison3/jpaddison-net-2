@@ -1,10 +1,19 @@
 import { BlitzConfig, sessionMiddleware, simpleRolesIsAuthorized } from "blitz"
+import { BlitzGuardMiddleware } from "@blitz-guard/core/dist/middleware"
 
 const config: BlitzConfig = {
   middleware: [
     sessionMiddleware({
       cookiePrefix: "jpaddisondotnet",
       isAuthorized: simpleRolesIsAuthorized,
+    }),
+    BlitzGuardMiddleware({
+      excluded: [
+        "/api/auth/mutations/login",
+        "/api/auth/mutations/logout",
+        "/api/guard/queries/getAbility",
+        "/api/users/queries/getCurrentUser",
+      ],
     }),
   ],
   images: {
