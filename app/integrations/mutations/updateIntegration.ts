@@ -1,14 +1,21 @@
-import { resolver } from "blitz"
-import db from "db"
+import Guard, { restricEditToOwnDocument, restrictQueryToOwnDocuments } from "app/guard/ability"
+import { AuthorizationError, resolver } from "blitz"
+import db, { Prisma } from "db"
+import { z } from "zod"
 import { UpdateIntegration } from "../validations"
 
 export default resolver.pipe(
   resolver.zod(UpdateIntegration),
   resolver.authorize(),
-  async ({ id, ...data }) => {
-    // TODO: in multi-tenant app, you must add validation to ensure correct tenant
-    const integration = await db.integration.update({ where: { id }, data })
+  restricEditToOwnDocument(),
+  async ({ id, requiredUserId, ...data }) => {
+    const integration = await db.integration.findFirst({ where: { id }, select: { userId: true } })
+    if (requiredUserId && integration?.userId !== requiredUserId) {
+      throw new AuthorizationError()
+    }
 
-    return integration
+    const updatedIntegration = await db.integration.update({ where: { id }, data })
+
+    return updatedIntegration
   }
 )

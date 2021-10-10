@@ -24,5 +24,5 @@ export default resolver.pipe(
       userId: integration.userId,
     }
   },
-  Guard.authorizePipe("manage:own", "Integration")
+  Guard.authorizePipe("read:own", "Integration")
 )
