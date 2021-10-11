@@ -4,7 +4,7 @@ import { Ctx } from "@blitzjs/core"
 import { HasUserId, MaybeHasUserId } from "app/utils"
 import { AuthenticatedMiddlewareCtx } from "@blitzjs/core/server"
 
-type ExtendedResourceTypes = Prisma.ModelName
+type ExtendedResourceTypes = Prisma.ModelName | "note"
 
 // Create own is separate, because it needs a separate guard
 type ExtendedAbilityTypes = "read:own" | "create:own" | "edit:own" | "readMultiple:own"
