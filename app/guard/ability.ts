@@ -7,7 +7,12 @@ import { AuthenticatedMiddlewareCtx } from "@blitzjs/core/server"
 type ExtendedResourceTypes = Prisma.ModelName | "note"
 
 // Create own is separate, because it needs a separate guard
-type ExtendedAbilityTypes = "read:own" | "create:own" | "edit:own" | "readMultiple:own"
+type ExtendedAbilityTypes =
+  | "read:own"
+  | "read:own:many"
+  | "create:own"
+  | "edit:own"
+  | "readMultiple:own"
 
 function ownsDocument(ctx: Ctx) {
   return async (document: HasUserId) => {
@@ -25,14 +30,22 @@ function forbidNonSelfUserId(ctx: Ctx) {
   }
 }
 
-export function restricEditToOwnDocument<T>() {
-  return async (document: T, ctx: AuthenticatedMiddlewareCtx & { __securedByGuard: boolean }) => {
+export function restrictEditToOwnDocument<T>() {
+  return (document: T, ctx: AuthenticatedMiddlewareCtx) => {
     let maybeRequiredUserId: { requiredUserId?: number } = { requiredUserId: ctx.session.userId }
     if (ctx.session.role === "ADMIN") {
       maybeRequiredUserId = {}
     }
-    ctx.__securedByGuard = true
     return { ...document, ...maybeRequiredUserId }
+  }
+}
+
+function checkEditRestricted(ctx: Ctx) {
+  return async ({ requiredUserId }: { requiredUserId: number }) => {
+    if (ctx.session.role === "ADMIN") {
+      return true
+    }
+    return requiredUserId === ctx.session.userId
   }
 }
 
@@ -40,32 +53,42 @@ export function restrictQueryToOwnDocuments<
   T extends { where?: U },
   U extends { userId?: number | Prisma.IntFilter }
 >() {
-  return async (
-    { where, ...rest }: T,
-    ctx: AuthenticatedMiddlewareCtx & { __securedByGuard: boolean }
-  ) => {
+  return async ({ where, ...rest }: T, ctx: AuthenticatedMiddlewareCtx) => {
     let maybeUserId: { userId?: number } = { userId: ctx.session.userId }
-    if (ctx.session.role === "ADMIN" && where?.userId) {
-      maybeUserId = {}
-    }
-    ctx.__securedByGuard = true
+    // TODO: Permissions for admin impersonation that doesn't break admins
+    // personal views
+    // if (ctx.session.role === "ADMIN" && adminImpersonation) {
+    //   maybeUserId = {}
+    // }
     return { where: { ...where, ...maybeUserId }, ...rest }
+  }
+}
+
+function checkQueryRestricted(ctx: Ctx) {
+  return async ({ where }: { where: MaybeHasUserId }) => {
+    if (ctx.session.role === "ADMIN") {
+      return true
+    }
+    return where?.userId === ctx.session.userId
   }
 }
 
 // You can read and write documents with your userId, and only those documents
 const Guard = GuardBuilder<ExtendedResourceTypes, ExtendedAbilityTypes>(
   async (ctx, { can, cannot }) => {
-    console.log("outermost")
     cannot("manage", "all")
     if (ctx.session.$isAuthorized()) {
-      console.log("isAuthorized")
       if (ctx.session.role === "ADMIN") {
         can("manage", "all")
       }
+      // check before mutation
       can("create:own", "all", forbidNonSelfUserId(ctx))
+      // check after query
       can("read:own", "all", ownsDocument(ctx))
-      can("edit:own", "all")
+      // check before query
+      can("read:own:many", "all", checkQueryRestricted(ctx))
+      // check before mutation
+      can("edit:own", "all", checkEditRestricted(ctx))
     }
   }
 )

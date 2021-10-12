@@ -1,5 +1,5 @@
-import { restrictQueryToOwnDocuments } from "app/guard/ability"
-import { paginate, resolver } from "blitz"
+import Guard, { restrictQueryToOwnDocuments } from "app/guard/ability"
+import { AuthenticatedMiddlewareCtx, paginate, resolver } from "blitz"
 import db, { Prisma } from "db"
 import { GetIntegrations } from "../validations"
 
@@ -10,7 +10,12 @@ export default resolver.pipe(
   resolver.zod<typeof GetIntegrations, GetIntegrationsInput>(GetIntegrations),
   resolver.authorize<GetIntegrationsInput>(),
   restrictQueryToOwnDocuments<GetIntegrationsInput, Prisma.IntegrationWhereInput>(),
-  async ({ where, orderBy, skip = 0, take = 100 }: GetIntegrationsInput) => {
+  Guard.authorizePipe("read:own:many", "Integration"),
+  async (
+    { where, orderBy, skip = 0, take = 100 }: GetIntegrationsInput,
+    context: AuthenticatedMiddlewareCtx
+  ) => {
+    const whereWithUserId = { userId: context.session.userId, ...where }
     const {
       items: integrations,
       hasMore,
@@ -19,11 +24,11 @@ export default resolver.pipe(
     } = await paginate({
       skip,
       take,
-      count: () => db.integration.count({ where: { ...where } }),
+      count: () => db.integration.count({ where: whereWithUserId }),
       query: (paginateArgs) =>
         db.integration.findMany({
           ...paginateArgs,
-          where,
+          where: whereWithUserId,
           orderBy,
           select: { id: true, userId: true, service: true, name: true },
         }),

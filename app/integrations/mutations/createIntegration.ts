@@ -7,7 +7,7 @@ import { CreateIntegration } from "../validations"
 export default resolver.pipe(
   resolver.zod(CreateIntegration),
   resolver.authorize(),
-  Guard.authorizePipe("edit:own", "Integration"),
+  Guard.authorizePipe("create:own", "Integration"),
   async (input, context) => {
     const user = await getCurrentUser(context)
     const integration = await db.integration.create({

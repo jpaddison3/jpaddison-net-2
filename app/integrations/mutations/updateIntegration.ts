@@ -1,4 +1,4 @@
-import Guard, { restricEditToOwnDocument, restrictQueryToOwnDocuments } from "app/guard/ability"
+import Guard, { restrictEditToOwnDocument } from "app/guard/ability"
 import { AuthorizationError, resolver } from "blitz"
 import db, { Prisma } from "db"
 import { z } from "zod"
@@ -7,7 +7,8 @@ import { UpdateIntegration } from "../validations"
 export default resolver.pipe(
   resolver.zod(UpdateIntegration),
   resolver.authorize(),
-  restricEditToOwnDocument(),
+  restrictEditToOwnDocument(),
+  Guard.authorizePipe("edit:own", "Integration"),
   async ({ id, requiredUserId, ...data }) => {
     const integration = await db.integration.findFirst({ where: { id }, select: { userId: true } })
     if (requiredUserId && integration?.userId !== requiredUserId) {
