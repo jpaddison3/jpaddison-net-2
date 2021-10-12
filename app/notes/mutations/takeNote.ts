@@ -2,6 +2,7 @@ import Guard from "app/guard/ability"
 import { AuthorizationError, resolver } from "blitz"
 import db from "db"
 import { TakeNote } from "../validations"
+import fetch from "node-fetch"
 
 export default resolver.pipe(
   resolver.zod(TakeNote),
@@ -18,5 +19,17 @@ export default resolver.pipe(
       throw new AuthorizationError()
     }
     console.log("title, contents, integrationId", title, contents, integrationId)
+    const response = await fetch(integration.webhook, {
+      method: "Post",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title,
+        contents,
+      }),
+    })
+    console.log("🚀 ~ file: takeNote.ts ~ line 33 ~ response", response)
   }
 )
