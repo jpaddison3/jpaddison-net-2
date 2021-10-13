@@ -3,6 +3,7 @@ import Layout from "app/core/layouts/Layout"
 import { NoteForm } from "app/notes/components/NoteForm"
 import { Head } from "blitz"
 import React from "react"
+
 export default function NewNotePage() {
   return (
     <>

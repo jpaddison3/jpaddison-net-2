@@ -12,6 +12,7 @@ type ExtendedAbilityTypes =
   | "read:own:many"
   | "create:own"
   | "edit:own"
+  | "delete:own"
   | "readMultiple:own"
 
 function ownsDocument(ctx: Ctx) {
@@ -89,6 +90,8 @@ const Guard = GuardBuilder<ExtendedResourceTypes, ExtendedAbilityTypes>(
       can("read:own:many", "all", checkQueryRestricted(ctx))
       // check before mutation
       can("edit:own", "all", checkEditRestricted(ctx))
+      // check before mutation
+      can("delete:own", "all", checkEditRestricted(ctx))
     }
   }
 )

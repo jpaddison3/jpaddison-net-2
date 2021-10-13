@@ -1,4 +1,5 @@
 import Guard, { restrictQueryToOwnDocuments } from "app/guard/ability"
+import { Awaited } from "app/utils"
 import { AuthenticatedMiddlewareCtx, paginate, resolver } from "blitz"
 import db, { Prisma } from "db"
 import { GetIntegrations } from "../validations"
@@ -6,7 +7,7 @@ import { GetIntegrations } from "../validations"
 interface GetIntegrationsInput
   extends Pick<Prisma.IntegrationFindManyArgs, "where" | "orderBy" | "skip" | "take"> {}
 
-export default resolver.pipe(
+const getIntegrations = resolver.pipe(
   resolver.zod<typeof GetIntegrations, GetIntegrationsInput>(GetIntegrations),
   resolver.authorize<GetIntegrationsInput>(),
   restrictQueryToOwnDocuments<GetIntegrationsInput, Prisma.IntegrationWhereInput>(),
@@ -42,3 +43,11 @@ export default resolver.pipe(
     }
   }
 )
+
+export default getIntegrations
+
+export type GetIntegrationsReturn = Awaited<ReturnType<typeof getIntegrations>>
+
+export type GetIntegrationsIntegration = Awaited<
+  ReturnType<typeof getIntegrations>
+>["integrations"][number]
