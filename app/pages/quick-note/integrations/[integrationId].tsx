@@ -1,8 +1,11 @@
-import { Suspense } from "react"
+import React, { Suspense } from "react"
 import { Head, Link, useRouter, useQuery, useParam, BlitzPage, useMutation, Routes } from "blitz"
 import Layout from "app/core/layouts/Layout"
 import getIntegration from "app/integrations/queries/getIntegration"
 import deleteIntegration from "app/integrations/mutations/deleteIntegration"
+import { Typography } from "@material-ui/core"
+
+// Note: Currently unused
 
 export const Integration = () => {
   const router = useRouter()
@@ -13,12 +16,13 @@ export const Integration = () => {
   return (
     <>
       <Head>
-        <title>Integration {integration.id}</title>
+        <title>{integration.name} | Quick Note</title>
       </Head>
 
       <div>
-        <h1>Integration {integration.id}</h1>
-        <pre>{JSON.stringify(integration, null, 2)}</pre>
+        <Typography variant="h2" component="h1" color="primary" gutterBottom>
+          Integration
+        </Typography>
 
         <Link href={Routes.EditIntegrationPage({ integrationId: integration.id })}>
           <a>Edit</a>

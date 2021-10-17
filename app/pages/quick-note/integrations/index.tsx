@@ -108,7 +108,7 @@ const IntegrationsList = () => {
               <TableCell>{integration.name}</TableCell>
               <TableCell>{integration.service}</TableCell>
               <TableCell>
-                <Link href={Routes.ShowIntegrationPage({ integrationId: integration.id })}>
+                <Link href={Routes.EditIntegrationPage({ integrationId: integration.id })}>
                   <EditIcon className={classes.editIcons} />
                 </Link>
               </TableCell>
