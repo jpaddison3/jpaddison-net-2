@@ -3,11 +3,16 @@ import LoadingWhileSuspended from "./LoadingWhileSuspended"
 
 type JpSuspenseProps = {
   name: string
+  className?: string
   children: React.ReactNode
 }
 
-const JpSuspense: React.FC<JpSuspenseProps> = ({ name, children }) => {
-  return <Suspense fallback={<LoadingWhileSuspended name={name} />}>{children}</Suspense>
+const JpSuspense: React.FC<JpSuspenseProps> = ({ name, children, className }) => {
+  return (
+    <Suspense fallback={<LoadingWhileSuspended name={name} className={className} />}>
+      {children}
+    </Suspense>
+  )
 }
 
 export default JpSuspense

@@ -28,7 +28,6 @@ const useStyles = makeStyles<Theme>((theme) => ({
 function NavDrawerContents() {
   const classes = useStyles()
   const [user, { status }] = useQuery(getCurrentUserQuery, null)
-  console.log("🚀 ~ file: Nav.tsx ~ line 29 ~ NavDrawer ~ status", status)
   const routesMaybeWithLogout = [...routes]
   if (user) {
     routesMaybeWithLogout.push({
@@ -41,7 +40,7 @@ function NavDrawerContents() {
   return (
     <List className={classes.drawerRoot}>
       {routesMaybeWithLogout.map(({ id, href, label, subRoutes }) => (
-        <>
+        <div key={id}>
           <ListItem key={id}>
             <ListItemText primaryTypographyProps={{ variant: "body2" }}>
               <Link className={classes.navItem} href={href}>
@@ -58,7 +57,7 @@ function NavDrawerContents() {
               </ListItemText>
             </ListItem>
           ))}
-        </>
+        </div>
       ))}
     </List>
   )

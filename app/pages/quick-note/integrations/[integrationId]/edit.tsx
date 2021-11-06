@@ -1,4 +1,4 @@
-import { Suspense } from "react"
+import React, { Suspense } from "react"
 import { Head, Link, useRouter, useQuery, useMutation, useParam, BlitzPage, Routes } from "blitz"
 import Layout from "app/core/layouts/Layout"
 import getIntegration from "app/integrations/queries/getIntegration"
@@ -6,6 +6,9 @@ import updateIntegration from "app/integrations/mutations/updateIntegration"
 import { IntegrationForm, FORM_ERROR } from "app/integrations/components/IntegrationForm"
 import { UpdateIntegration } from "app/integrations/validations"
 import JpSuspense from "app/core/components/JpSuspense"
+import { Typography } from "@material-ui/core"
+import ButtonLink from "app/core/components/WrappedButton"
+import { ChevronLeftSharp } from "@material-ui/icons"
 
 export const EditIntegration = () => {
   const router = useRouter()
@@ -28,8 +31,9 @@ export const EditIntegration = () => {
       </Head>
 
       <div>
-        <h1>Edit Integration {integration.id}</h1>
-        <pre>{JSON.stringify(integration, null, 2)}</pre>
+        <Typography variant="h2" component="h1" color="primary" gutterBottom>
+          Edit Integration {integration.id}
+        </Typography>
 
         <IntegrationForm
           submitText="Update Integration"
@@ -59,15 +63,15 @@ export const EditIntegration = () => {
 const EditIntegrationPage: BlitzPage = () => {
   return (
     <div>
+      <p>
+        <ButtonLink href={Routes.IntegrationsPage()}>
+          <ChevronLeftSharp /> Integrations
+        </ButtonLink>
+      </p>
+
       <JpSuspense name="EditIntegration">
         <EditIntegration />
       </JpSuspense>
-
-      <p>
-        <Link href={Routes.IntegrationsPage()}>
-          <a>Integrations</a>
-        </Link>
-      </p>
     </div>
   )
 }

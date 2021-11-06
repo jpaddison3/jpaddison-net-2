@@ -33,6 +33,7 @@
     "blitz": "0.39.0",
     "final-form": "4.20.2",
     "mui-rff": "3.0.16",
+    "node-fetch": "2.6.5",
     "react": "alpha",
     "react-dom": "alpha",
     "react-final-form": "6.5.3",

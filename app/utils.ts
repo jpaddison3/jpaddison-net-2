@@ -7,3 +7,5 @@ export interface MaybeHasUserId {
 }
 
 export const isServer = typeof window === "undefined"
+
+export type Awaited<T> = T extends PromiseLike<infer U> ? U : T

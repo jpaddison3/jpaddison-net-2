@@ -25,6 +25,11 @@ export const routes: NavRoutes = [
         href: "/quick-note/integrations",
         label: "Integrations",
       },
+      {
+        id: "quick-note-new-note",
+        href: "/quick-note/new-note",
+        label: "New Note",
+      },
     ],
   },
 ]
